@@ -17,13 +17,12 @@
 use strict;
 use warnings;
 use v5.36;
-use English;
 use Readonly;
 
 Readonly my $DIST_TUPLE_LENGTH	=> 5;
 Readonly my @VALID_TEMPLATES	=> ( 'github' );
 
-my @dist_tuple;
+my @dist_tuple;	# the variable to fill up and use to create the final output
 
 sub usage() {
 	say "usage:\tgen-dist-tuple.pl template account project tagname";
@@ -65,7 +64,7 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 	# "sha":"0ddd86eaa8871dc0833c69f931f55cd856c5009d"
 	# "submodule_git_url": "https://github.com/spring/SpringMapConvNG.git
 	push @submodule_tuple, ( $git_url =~ m{api\.github\.com/repos/([^/]*)/(.*)/git/trees/([a-z0-9]*)} );
-	if ( scalar( @submodule_tuple ) != 3 ) {
+	if ( scalar( @submodule_tuple ) != 4 ) {
 		die "incomplete tuple from $git_url";
 	}
 	push @submodule_tuple, $submodule;
