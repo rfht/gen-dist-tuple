@@ -23,7 +23,7 @@ use Readonly;
 Readonly my $DIST_TUPLE_LENGTH	=> 5;
 Readonly my @VALID_TEMPLATES	=> ( 'github' );
 
-my @dist_tuples;
+my @dist_tuple;
 
 sub usage() {
 	say "usage:\tgen-dist-tuple.pl template account project tagname";
@@ -65,6 +65,9 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 	# "sha":"0ddd86eaa8871dc0833c69f931f55cd856c5009d"
 	# "submodule_git_url": "https://github.com/spring/SpringMapConvNG.git
 	push @submodule_tuple, ( $git_url =~ m{api\.github\.com/repos/([^/]*)/(.*)/git/trees/([a-z0-9]*)} );
+	if ( scalar( @submodule_tuple ) != 3 ) {
+		die "incomplete tuple from $git_url";
+	}
 	push @submodule_tuple, $submodule;
 
 	return @submodule_tuple;
@@ -72,7 +75,7 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 
 usage() if $#ARGV != 3;
 my ($template, $account, $project, $id) = @ARGV;
-push @dist_tuples, ( $template, $account, $project, $id, '.' );
+push @dist_tuple, ( $template, $account, $project, $id, '.' );
 
 unless ( grep( /^\Q$template\E$/, @VALID_TEMPLATES ) ) {
 	say "Not a valid template: $template";
@@ -83,14 +86,14 @@ unless ( grep( /^\Q$template\E$/, @VALID_TEMPLATES ) ) {
 my @submodules = get_submodule_list( $template, $account, $project, $id );
 
 foreach my $s ( @submodules ) {
-	push @dist_tuples, get_submodule_info ( $template, $account, $project, $id, $s );
+	push @dist_tuple, get_submodule_info ( $template, $account, $project, $id, $s );
 }
 
-while ( @dist_tuples ) {
+while ( @dist_tuple ) {
 	print "DIST_TUPLE +=";
 	for ( my $i = 0; $i < $DIST_TUPLE_LENGTH; $i++ ) {
 		print ' ';
-		print( shift( @dist_tuples ) );
+		print( shift( @dist_tuple ) );
 	}
 	say '';
 }
