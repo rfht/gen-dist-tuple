@@ -22,12 +22,16 @@ use Readonly;
 Readonly my $DIST_TUPLE_LENGTH	=> 5;
 Readonly my @VALID_TEMPLATES	=> ( 'github' );
 
-my @dist_tuple;	# the variable to fill up and use to create the final output
+my @dist_tuple;	# the variable to fill for the final output
 
 sub usage() {
 	say "usage:\tgen-dist-tuple.pl template account project tagname";
 	say "\tgen-dist-tuple.pl template account project commithash";
 	exit 1;
+}
+
+sub is_hash( $s ) {
+	return $s =~ m/^[0-9a-f]{10,40}$/;
 }
 
 sub get_submodule_list( $template, $account, $project, $id ) {
@@ -48,11 +52,15 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 	my @submodule_tuple = ( $template );
 
 	# github template
-	# if commit hash is provided
-	# XXX: branch depending on if its a tag name or commit hash
-	# by tag:
-	# ftp -o - https://api.github.com/repos/OWNER/PROJECT/contents/PATH/TO/SUBMODULE?ref=TAGNAME
-	my $submod_remote = "https://api.github.com/repos/$account/$project/contents/$submodule?sha=$id";
+
+	my $submod_remote;
+	if ( is_hash( $id ) ) {
+		$submod_remote = "https://api.github.com/repos/$account/$project/contents/$submodule?sha=$id";
+	}
+	else {
+		$submod_remote = "https://api.github.com/repos/$account/$project/contents/$submodule?ref=$id";
+	}
+
 	my $raw_submod_json = `ftp -Vo - $submod_remote`;
 	if ( grep( /ftp: Error/, $raw_submod_json) ) {
 		die "Error retrieving submodule content from $submod_remote";
@@ -71,6 +79,8 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 
 	return @submodule_tuple;
 }
+
+### main ###
 
 usage() if $#ARGV != 3;
 my ($template, $account, $project, $id) = @ARGV;
