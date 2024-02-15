@@ -40,8 +40,8 @@ sub get_submodule_list( $template, $account, $project, $id ) {
 	# github template
 	my $gitmodules_remote = "https://raw.githubusercontent.com/$account/$project/$id/.gitmodules";
 	my @raw_gitmodules = split( "\n", `ftp -Vo - $gitmodules_remote` );
-	if ( grep( /ftp: Error/, @raw_gitmodules) ) {
-		die "Error retrieving submodule list from $gitmodules_remote";
+	unless ( @raw_gitmodules ) {
+		warn "WARNING: no submodule list";
 	}
 	@submodules = map { m/^\s*path\s*=\s*(.*)\s*$/ ? ( $1 ) : () } @raw_gitmodules;
 
@@ -62,8 +62,8 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 	}
 
 	my $raw_submod_json = `ftp -Vo - $submod_remote`;
-	if ( grep( /ftp: Error/, $raw_submod_json) ) {
-		die "Error retrieving submodule content from $submod_remote";
+	unless ( $raw_submod_json ) {
+		die "no submodule content";
 	}
 
 	( my $git_url ) = ( $raw_submod_json =~ /\"git_url\":\"([^\"]*)/ );
