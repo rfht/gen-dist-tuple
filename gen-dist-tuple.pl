@@ -17,10 +17,9 @@
 use strict;
 use warnings;
 use v5.36;
-use Readonly;
 
-Readonly my $DIST_TUPLE_LENGTH	=> 5;
-Readonly my @VALID_TEMPLATES	=> ( 'github' );
+use constant DIST_TUPLE_LENGTH	=> 5;
+use constant VALID_TEMPLATES	=> qw( github );
 
 my @dist_tuple;	# the variable to fill for the final output
 
@@ -86,9 +85,9 @@ usage() if $#ARGV != 3;
 my ($template, $account, $project, $id) = @ARGV;
 push @dist_tuple, ( $template, $account, $project, $id, '.' );
 
-unless ( grep( /^\Q$template\E$/, @VALID_TEMPLATES ) ) {
+unless ( grep( /^\Q$template\E$/, (VALID_TEMPLATES) ) ) {
 	say "Not a valid template: $template";
-	say 'Valid templates: ' . join( ' ', @VALID_TEMPLATES );
+	say 'Valid templates: ' . join( ' ', (VALID_TEMPLATES) );
 	exit 1;
 }
 
@@ -100,7 +99,7 @@ foreach my $s ( @submodules ) {
 
 while ( @dist_tuple ) {
 	print "DIST_TUPLE +=";
-	for ( my $i = 0; $i < $DIST_TUPLE_LENGTH; $i++ ) {
+	for ( my $i = 0; $i < DIST_TUPLE_LENGTH; $i++ ) {
 		print ' ';
 		print( shift( @dist_tuple ) );
 	}
