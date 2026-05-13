@@ -71,8 +71,11 @@ sub get_submodule_info( $template, $account, $project, $id, $submodule ) {
 	# "sha":"0ddd86eaa8871dc0833c69f931f55cd856c5009d"
 	# "submodule_git_url": "https://github.com/spring/SpringMapConvNG.git
 	push @submodule_tuple, ( $git_url =~ m{api\.github\.com/repos/([^/]*)/(.*)/git/trees/([a-z0-9]*)} );
+	for my $e (@submodule_tuple) {
+		say "DEBUG: $e";
+	}
 	if ( scalar( @submodule_tuple ) != 4 ) {
-		die "incomplete tuple from $git_url";
+		warn "incomplete tuple from $git_url";
 	}
 	push @submodule_tuple, $submodule;
 
